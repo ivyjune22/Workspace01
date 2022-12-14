@@ -11,17 +11,42 @@ drop sequence seq_mem;
 
 drop table member purge;
 
-insert into member values (seq_mem.nextval, '수간호사1', 1, '1986-01-11');
-insert into member values (seq_mem.nextval, '간호사1', 2, '1996-12-15');
-
-update member set name='간호조무사1', rank=3, birthday='1994-02-14' where num=1;
-
-select * from member;
-
-select * from (select rownum rn, tt.* from
-(select * from member order by seq_mem desc) tt)
-where rn>=1 and rn<=20;
-
-delete member where num=2;
-
-commit;
+DECLARE
+    cf varchar2(20) := '수';
+    nu varchar2(20) := '간';
+    su varchar2(20) := '조';
+BEGIN
+    FOR i IN 1..20
+    LOOP
+        insert into member values 
+        (seq_mem.nextval, cf || i, 1,
+        TO_DATE ( ROUND (DBMS_RANDOM.VALUE (1, 28)) 
+                || '-'
+                || ROUND (DBMS_RANDOM.VALUE (1, 12))
+                || '-'
+                || ROUND (DBMS_RANDOM.VALUE (1950, 2000)), 'DD-MM-YYYY' ));
+    END LOOP;
+    
+    FOR i IN 1..40
+    LOOP
+        insert into member values 
+        (seq_mem.nextval, nu || i, 2,
+        TO_DATE ( ROUND (DBMS_RANDOM.VALUE (1, 28)) 
+                || '-'
+                || ROUND (DBMS_RANDOM.VALUE (1, 12))
+                || '-'
+                || ROUND (DBMS_RANDOM.VALUE (1950, 2000)), 'DD-MM-YYYY' ));
+    END LOOP;
+    
+    FOR i IN 1..40
+    LOOP
+        insert into member values 
+        (seq_mem.nextval, su || i, 3,
+        TO_DATE ( ROUND (DBMS_RANDOM.VALUE (1, 28)) 
+                || '-'
+                || ROUND (DBMS_RANDOM.VALUE (1, 12))
+                || '-'
+                || ROUND (DBMS_RANDOM.VALUE (1950, 2000)), 'DD-MM-YYYY' ));
+    END LOOP;
+    COMMIT;
+END;

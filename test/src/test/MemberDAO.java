@@ -20,7 +20,7 @@ public class MemberDAO {
 	private String listSQL = "select * from member order by num asc";
 	private String rank1ListSQL = "select * from member where rank=1 order by num asc";
 	private String rank23ListSQL = "select * from member where rank>1 order by num asc";
-	private String findNameSQL = "select * from member where num=?";
+	private String findOneSQL = "select * from member where num=?";
 	
 	public Connection getConnection() {
 		String url = "jdbc:oracle:thin:@localhost:1521";
@@ -185,7 +185,7 @@ public class MemberDAO {
 		
 		try {
 			conn = getConnection();
-			pstmt = conn.prepareStatement(findNameSQL);
+			pstmt = conn.prepareStatement(findOneSQL);
 			pstmt.setInt(1, num);
 			
 			rs = pstmt.executeQuery();
@@ -205,5 +205,32 @@ public class MemberDAO {
 		
 		String name = list.get(0).getName();
 		return name;
+	}
+
+	public int findRank(int num) {
+		List<MemberDTO> list = new ArrayList<MemberDTO>();
+		
+		try {
+			conn = getConnection();
+			pstmt = conn.prepareStatement(findOneSQL);
+			pstmt.setInt(1, num);
+			
+			rs = pstmt.executeQuery();
+			while(rs.next()) {
+				MemberDTO dto = new MemberDTO();
+				dto.setNum(rs.getInt(1));
+				dto.setName(rs.getString(2));
+				dto.setRank(rs.getInt(3));
+				dto.setBirthday(rs.getString(4));
+				list.add(dto);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			close();
+		}
+		
+		int rank = list.get(0).getRank();
+		return rank;
 	}
 }

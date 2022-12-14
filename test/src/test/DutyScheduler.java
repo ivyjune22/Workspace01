@@ -50,9 +50,9 @@ public class DutyScheduler {
 	}
 	
 	public int getPriority(int i, int j, int dutyDays, List<MemberDTO> list,
-			List<List<Integer>> timeSchedule, List<List<Integer>> lastTimeSchedule,
-			List<List<Integer>> formerTimeSchedule,	List<Integer> timeDuty, List<Integer> timeQueue, 
-			List<Integer> dutyQueue, List<LocalDate> period) {
+		List<List<Integer>> timeSchedule, List<List<Integer>> lastTimeSchedule,
+		List<List<Integer>> formerTimeSchedule,	List<Integer> timeDuty, List<Integer> timeQueue, 
+		List<Integer> dutyQueue, List<LocalDate> period) {
 		int k = 0, m = 0;
 		
 		switch(i % 3) {
@@ -127,71 +127,50 @@ public class DutyScheduler {
 		
 		for(int i=0; i<period.size()*3; i++) {
 			List<Integer> timeDuty = new ArrayList<Integer>();
-			int k=0, dutyCount;
+			int j=0, dutyCount;
 			if(chkHoliday.get(i/3) == 0) {
 				dutyCount = r23List.size() / 4;
 			} else {
 				dutyCount = r23List.size() / 12;
 			}
 			
+			while(j <= r23List.size() * dutyCount) {
+				List<Integer> priority = new ArrayList<Integer>();
+				int k = j % r23List.size();
+				j++;
+				for(int m = 0; m < r23List.size(); m++) {
+					int p = 0;
+					switch(i%3) {
+					case 0: {
+						p = getPriority(i, m, dutyDays, r23List, daySchedule, nightSchedule, eveSchedule,
+							timeDuty, dayQueue, dutyQueue, period);
+						} break;
+					case 1: {
+						p = getPriority(i, m, dutyDays, r23List, eveSchedule, daySchedule, nightSchedule,
+							timeDuty, eveQueue, dutyQueue, period);
+						} break;
+					case 2: {
+						p = getPriority(i, m, dutyDays, r23List, nightSchedule, eveSchedule, daySchedule,
+							timeDuty, nightQueue, dutyQueue, period);
+						} break;
+					}
+					priority.add(p);
+				}
+				if(priority.get(k) == Collections.min(priority)) {
+					timeDuty.add(r23List.get(k).getNum());
+					dutyQueue.set(k, dutyQueue.get(k) + 1);
+					switch(i%3) {
+					case 0: dayQueue.set(k, dayQueue.get(k) + 1); break;
+					case 1: eveQueue.set(k, eveQueue.get(k) + 1); break;  
+					case 2: nightQueue.set(k, nightQueue.get(k) + 1); break;
+					}
+					if(timeDuty.size() >= dutyCount) break;
+				}
+			}
 			switch(i%3) {
-			case 0:	
-				while(k <= r23List.size() * dutyCount) {
-					List<Integer> priority = new ArrayList<Integer>();
-					int j = k % r23List.size();
-					k++;
-					for(int m = 0; m < r23List.size(); m++) {
-						int p = getPriority(i, m, dutyDays, r23List,
-								daySchedule, nightSchedule, eveSchedule, timeDuty,
-								dayQueue, dutyQueue, period);
-						priority.add(p);
-					}
-					if(priority.get(j) == Collections.min(priority)) {
-						timeDuty.add(r23List.get(j).getNum());
-						dutyQueue.set(j, dutyQueue.get(j) + 1);
-						dayQueue.set(j, dayQueue.get(j) + 1);
-						if(timeDuty.size() >= dutyCount) break;
-					} else continue;
-				}
-				daySchedule.add(timeDuty); break;
-			case 1:
-				while(k <= r23List.size() * dutyCount) {
-					List<Integer> priority = new ArrayList<Integer>();
-					int j = k % r23List.size();
-					k++;
-					for(int m = 0; m < r23List.size(); m++) {
-						int p = getPriority(i, m, dutyDays, r23List,
-								eveSchedule, daySchedule, nightSchedule, timeDuty,
-								eveQueue, dutyQueue, period);
-						priority.add(p);
-					}
-					if(priority.get(j) == Collections.min(priority)) {
-						timeDuty.add(r23List.get(j).getNum());
-						dutyQueue.set(j, dutyQueue.get(j) + 1);
-						eveQueue.set(j, eveQueue.get(j) + 1);
-						if(timeDuty.size() >= dutyCount) break;
-					} else continue;
-				}
-				eveSchedule.add(timeDuty); break;
-			case 2:
-				while(k <= r23List.size() * dutyCount) {
-					List<Integer> priority = new ArrayList<Integer>();
-					int j = k % r23List.size();
-					k++;
-					for(int m = 0; m < r23List.size(); m++) {
-						int p = getPriority(i, m, dutyDays, r23List,
-								nightSchedule, eveSchedule, daySchedule, timeDuty,
-								nightQueue, dutyQueue, period);
-						priority.add(p);
-					}
-					if(priority.get(j) == Collections.min(priority)) {
-						timeDuty.add(r23List.get(j).getNum());
-						dutyQueue.set(j, dutyQueue.get(j) + 1);
-						nightQueue.set(j, nightQueue.get(j) + 1);
-						if(timeDuty.size() >= dutyCount) break;
-					} else continue;
-				}
-				nightSchedule.add(timeDuty); break;
+			case 0: daySchedule.add(timeDuty); break;
+			case 1: eveSchedule.add(timeDuty); break;
+			case 2: nightSchedule.add(timeDuty); break;
 			}
 		}
 		
@@ -200,5 +179,40 @@ public class DutyScheduler {
 		dutyMap.put(3, nightSchedule);
 		
 		return dutyMap ;
+	}
+	
+	public List<Integer> r1PersonalSch(List<LocalDate> period, List<MemberDTO> r1List, int num) {
+		List<List<Integer>> r1Schedule = r1Scheduler(period, r1List);
+		List<Integer> r1PersonalSch = new ArrayList<Integer>();
+		 
+		for(int i=0; i<r1Schedule.size(); i++) {
+			if(r1Schedule.get(i).contains(num)) {
+				r1PersonalSch.add(1);
+			} else {
+				r1PersonalSch.add(0);
+			}
+		}
+		return r1PersonalSch;
+	}
+	
+	public List<Integer> r23PersonalSch(List<LocalDate> period, List<MemberDTO> r23List, int num) {
+		Map<Integer, List<List<Integer>>> dutyMap = r23Scheduler(period, r23List);
+		List<Integer> r23PersonalSch = Arrays.asList(Collections.nCopies(period.size(), 0).toArray(new Integer[0]));
+		
+		List<List<Integer>> daySchedule = dutyMap.get(1);
+		List<List<Integer>> eveSchedule = dutyMap.get(2);
+		List<List<Integer>> nightSchedule = dutyMap.get(3);
+		
+		for(int i=0; i<period.size(); i++) {
+			if(daySchedule.get(i).contains(num)) {
+				r23PersonalSch.set(i, 1);
+			} else if(eveSchedule.get(i).contains(num)) {
+				r23PersonalSch.set(i, 2);
+			} else if(nightSchedule.get(i).contains(num)) {
+				r23PersonalSch.set(i, 3);
+			} else continue;
+		}
+		
+		return r23PersonalSch;
 	}
 }

@@ -137,6 +137,7 @@ public class Main {
 		int m = 0;
 		List<MemberDTO> r1List = dao.rank1List();
 		List<MemberDTO> r23List = dao.rank23List();
+		List<MemberDTO> list = dao.list();
 		int d;
 		List<LocalDate> period;
 		
@@ -144,12 +145,13 @@ public class Main {
 			System.out.println("---------------");
 			System.out.println("1. 전체 근무표 보기");
 			System.out.println("2. 개인 근무표 보기");
-			System.out.println("3. 돌아가기");
+			System.out.println("3. 근무표 검증");
+			System.out.println("4. 돌아가기");
 			System.out.println("---------------");
 			do {
 				System.out.print("번호를 입력하세요 : ");
 				m = sc.nextInt();
-			} while(m < 1 || m > 3);
+			} while(m < 1 || m > 4);
 			switch(m) {
 			case 1: 
 				System.out.print("근무기간(일)을 입력하세요 : ");
@@ -230,6 +232,17 @@ public class Main {
 				}
 				break;
 			case 3:
+				System.out.print("근무기간(일)을 입력하세요 : ");
+				d = sc.nextInt();
+				period = hol.getPeriod(d);
+				List<Integer> dutyChkList = ds.dutyChk(period, r1List, r23List);
+				
+				for(int i=0; i<list.size(); i++) {
+					System.out.print(list.get(i).getName() + " ");
+					System.out.println(dutyChkList.get(i));
+				}
+				break;
+			case 4:
 				mainMenu();
 				break;
 			}

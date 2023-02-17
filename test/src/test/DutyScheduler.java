@@ -215,4 +215,30 @@ public class DutyScheduler {
 		
 		return r23PersonalSch;
 	}
+	
+	public List<Integer> dutyChk(List<LocalDate> period, List<MemberDTO> r1List, List<MemberDTO> r23List) {
+		List<Integer> dutyChkList =
+				Arrays.asList(Collections.nCopies(r1List.size() + r23List.size(), 0).toArray(new Integer[0]));
+		int dutyDays = (int)(period.size() * 0.6);
+		
+		for(int i=0; i<r1List.size(); i++) {
+			int sum = 0;
+			List<Integer> psch = r1PersonalSch(period, r1List, r1List.get(i).getNum());
+			for(int j=0; j<psch.size(); j++) {
+				sum += psch.get(j);
+			}
+			dutyChkList.set(r1List.get(i).getNum() - 1, dutyDays - sum);
+		}
+		
+		for(int i=0; i<r23List.size(); i++) {
+			int sum = 0;
+			List<Integer> psch = r23PersonalSch(period, r23List, r23List.get(i).getNum());
+			for(int j=0; j<psch.size(); j++) {
+				sum += psch.get(j);
+			}
+			dutyChkList.set(r23List.get(i).getNum() - 1, dutyDays * 2 - sum);
+		}
+		
+		return dutyChkList;
+	}
 }
